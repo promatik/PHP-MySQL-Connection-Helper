@@ -27,7 +27,7 @@ class MySQL extends mysqli
 	
 	public function query($query, $escape_query = true) {
 		if($escape_query)
-			$query = parent::escape_string($query);
+			$query = preg_replace(array("/\\\\r|\\\\n/", "/\\t{1,}/", "/\\\'/"), array("", " ", "'"), utf8_encode(parent::escape_string($query)));
 		return parent::query($query);
 	}
 	
