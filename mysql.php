@@ -31,6 +31,10 @@ class MySQL extends mysqli
 		return parent::query($query);
 	}
 	
+	public function fetchQuery($query) {
+		return self::fetchAll(parent::query($query));
+	}
+	
 	public function numRows($result) {
 		return $result->num_rows;
 	}
