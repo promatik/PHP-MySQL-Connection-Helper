@@ -5,6 +5,7 @@ class MySQL extends mysqli
 	private $log = false;
 	public $logs = array();
 	public $connected = false;
+	public $queryCount = 0;
 	
 	public function __construct($host, $user, $pass, $database, $log = false) {
 		parent::__construct($host, $user, $pass, $database);
@@ -32,6 +33,7 @@ class MySQL extends mysqli
 		if($escape_query)
 			$query = preg_replace(array("/\\\\r|\\\\n/", "/\\t{1,}/", "/\\\'/", "/\\s{2,}/"), array("", " ", "'", " "), utf8_encode(parent::escape_string($query)));
 		
+		$this->queryCount++;
 		if($this->log) {
 			$logTime = microtime(true);
 			$r = parent::query($query);
@@ -115,7 +117,7 @@ class MySQL extends mysqli
 	// Helper
 	private function mapKeyVal(&$v, $k) {
 		$k = explode(" ", $k);
-		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . $this->apostropheString($v);
+		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpos($v, ' ') !== false ? $v : $this->apostropheString($v));
 	}
 	
 	private function mapFields(&$v, &$k) {
@@ -131,7 +133,7 @@ class MySQL extends mysqli
 	}
 
 	private function apostropheString($s) {
-		return is_string($s) ? "'$s'" : $s;
+		return is_string($s) ? "'$s'" : (is_null($s) ? "''" : $s);
 	}
 }
 
