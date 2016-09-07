@@ -39,7 +39,7 @@ class MySQL extends mysqli
 			$r = parent::query($query);
 			
 			array_push($this->logs, array(
-				"query" => "'$query'",
+				"query" => "$query",
 				"rows" => $this->affected_rows,
 				"info" => $this->info,
 				"errors" => $this->errno,
@@ -88,13 +88,14 @@ class MySQL extends mysqli
 		$vals = array_map(array($this, "apostropheString"), $data);
 		
 		$res = $this->_query("INSERT INTO `$table` (" . join(", ", $cols) . ") VALUES (" . join(", ", $vals) . ");");
-		return $res ? $this->insert_id : false;
+		return $res ? ($this->insert_id ? $this->insert_id : $this->errno == 0) : false;
 	}
 	
 	public function deleteRow($table, $index) {
 		array_walk($index, array($this, 'mapKeyVal'));
 		
-		return $this->_query("DELETE FROM `$table` WHERE ".join(" AND ", $index).";");
+		$this->_query("DELETE FROM `$table` WHERE ".join(" AND ", $index).";");
+		return $this->affected_rows > 0;
 	}
 	
 	public function newId($table, $field) {
