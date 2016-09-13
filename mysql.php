@@ -39,7 +39,7 @@ class MySQL extends mysqli
 			$r = parent::query($query);
 			
 			array_push($this->logs, array(
-				"query" => "$query",
+				"query" => $query,
 				"rows" => $this->affected_rows,
 				"info" => $this->info,
 				"errors" => $this->errno,
@@ -61,6 +61,16 @@ class MySQL extends mysqli
 	
 	public function fetchAssocQuery($query) {
 		return $this->fetchAssoc($this->_query($query));
+	}
+	
+	public function fetchQueryValue($field, $query) {
+		$res = $this->fetchAssoc($this->_query($query));
+		return $res[$field];
+	}
+	
+	public function countQueryRows($query) {
+		$result = $this->_query($query);
+		return $result->num_rows;
 	}
 	
 	public function numRows($result) {
@@ -118,7 +128,7 @@ class MySQL extends mysqli
 	// Helper
 	private function mapKeyVal(&$v, $k) {
 		$k = explode(" ", $k);
-		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpos($v, ' ') !== false ? $v : $this->apostropheString($v));
+		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpos($v, '`') !== false ? $v : $this->apostropheString($v));
 	}
 	
 	private function mapFields(&$v, &$k) {
