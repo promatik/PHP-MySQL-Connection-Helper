@@ -8,7 +8,10 @@ class MySQL extends mysqli
 	public $queryCount = 0;
 	
 	public function __construct($host, $user, $pass, $database, $log = false) {
+		$err = error_reporting(0); // Avoid mysqli version errors
 		parent::__construct($host, $user, $pass, $database);
+		error_reporting($err);
+		
 		$this->connected = true;
 		$this->log = $log;
 		
@@ -115,20 +118,24 @@ class MySQL extends mysqli
 	}
 	
 	public function fetchAssoc($result) {
-		return $result->fetch_assoc();
+		$res = array();
+		if($result)
+			$res = $result->fetch_assoc();
+		return $res;
 	}
 	
 	public function fetchAll($result) {
 		$res = array();
-		while($r = $result->fetch_assoc())
-			array_push($res, $r);
+		if($result)
+			while($r = $result->fetch_assoc())
+				array_push($res, $r);
 		return $res;
 	}
 
 	// Helper
 	private function mapKeyVal(&$v, $k) {
 		$k = explode(" ", $k);
-		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpos($v, '`') !== false ? $v : $this->apostropheString($v));
+		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpbrk($v, "` ") !== false ? $v : $this->apostropheString($v));
 	}
 	
 	private function mapFields(&$v, &$k) {
