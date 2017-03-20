@@ -32,9 +32,11 @@ class MySQL extends mysqli
 		}
 	}
 	
-	private function _query($query, $escape_query = true) {
+	private function _query($query, $escape_query = true, $utf8encode = false) {
+		if($utf8encode)
+			$query = utf8_encode($query);
 		if($escape_query)
-			$query = preg_replace(array("/\\\\r|\\\\n/", "/\\t{1,}/", "/\\\'/", "/\\s{2,}/"), array("", " ", "'", " "), utf8_encode(parent::escape_string($query)));
+			$query = preg_replace(array("/\\\\r|\\\\n/", "/\\t{1,}/", "/\\\'/", "/\\s{2,}/"), array("", " ", "'", " "), parent::escape_string($query));
 		
 		$this->queryCount++;
 		if($this->log) {
@@ -135,7 +137,7 @@ class MySQL extends mysqli
 	// Helper
 	private function mapKeyVal(&$v, $k) {
 		$k = explode(" ", $k);
-		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpbrk($v, "` ") !== false ? $v : $this->apostropheString($v));
+		$v = $this->accentString(array_shift($k)) . " ". (sizeof($k) ? join(" ", $k) : " = ") . " " . (strpbrk($v, "`") !== false ? $v : $this->apostropheString($v));
 	}
 	
 	private function mapFields(&$v, &$k) {
