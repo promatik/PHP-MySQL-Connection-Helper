@@ -153,7 +153,7 @@ class MySQL extends mysqli
 	}
 
 	private function apostropheString($s) {
-		return is_string($s) ? "'$s'" : (is_null($s) ? "''" : $s);
+		return is_string($s) ? "'$s'" : (is_null($s) ? "NULL" : $s);
 	}
 }
 
